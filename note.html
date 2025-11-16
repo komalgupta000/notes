@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Note App</title>
+
+<style>
+    /* BODY BACKGROUND */
+    body {
+        font-family: Poppins;
+        background: linear-gradient(135deg, #4b79a1, #283e51);
+        padding: 30px;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 850px;
+        margin: auto;
+    }
+
+    /* HEADING */
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: white;
+        font-size: 32px;
+        text-shadow: 2px 4px 6px rgba(50, 190, 250, 0.3);
+    }
+
+    /* GLASSMORPHISM INPUT BOX */
+    .note-input {
+        padding: 18px;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        display: flex;
+        gap: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+
+    textarea {
+        width: 100%;
+        height: 130px;
+        padding: 15px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        resize: none;
+        font-size: 15px;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    button {
+        padding: 12px 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 10px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .add-btn {
+        background: black;
+        color: white;
+        font-size: 15px;
+        width: 120px;
+    }
+
+    .add-btn:hover {
+        transform: scale(1.05);
+        background: rgb(40, 40, 40);
+    }
+
+    /* NOTES GRID */
+    .notes {
+        margin-top: 35px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 18px;
+    }
+
+    /* NOTE CARD */
+    .note {
+        padding: 18px;
+        border-radius: 14px;
+        color: white;
+        min-height: 140px;
+        position: relative;
+        white-space: pre-wrap;
+        transition: 0.25s ease-in-out;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Hover effect */
+    .note:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    /* ACTION BUTTONS */
+    .actions {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .btn-small {
+        padding: 5px 8px;
+        font-size: 12px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .edit-btn { background: #007bff; color: white; }
+    .delete-btn { background: red; color: white; }
+
+    .btn-small:hover {
+        transform: scale(1.1);
+    }
+
+    /* TIMESTAMP */
+    .timestamp {
+        margin-top: 10px;
+        font-size: 12px;
+        opacity: 0.9;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Advanced Note App</h2>
+
+    <div class="note-input">
+        <textarea id="noteText" placeholder="Write your note here..."></textarea>
+        <button class="add-btn" onclick="addNote()">Add</button>
+    </div>
+
+    <div class="notes" id="notes"></div>
+
+</div>
+
+<script>
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    const colors = [
+        "#ff6b6b", "#6c5ce7", "#00cec9",
+        "#0984e3", "#fdcb6e", "#e84393",
+        "#74b9ff", "#55efc4", "#fab1a0",
+        "#a29bfe", "#ff7675", "#81ecec"
+    ];
+
+    function addNote() {
+        const text = document.getElementById("noteText").value.trim();
+        if (!text) return alert("Please write something!");
+
+        const timestamp = new Date().toLocaleString();
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        notes.push({ text, timestamp, color });
+
+        localStorage.setItem("notes", JSON.stringify(notes));
+        document.getElementById("noteText").value = "";
+        showNotes();
+    }
+
+    function deleteNote(i) {
+        notes.splice(i, 1);
+        localStorage.setItem("notes", JSON.stringify(notes));
+        showNotes();
+    }
+
+    function editNote(i) {
+        let newText = prompt("Edit your note:", notes[i].text);
+        if (newText !== null && newText.trim() !== "") {
+            notes[i].text = newText;
+            notes[i].timestamp = new Date().toLocaleString();
+            localStorage.setItem("notes", JSON.stringify(notes));
+            showNotes();
+        }
+    }
+
+    function showNotes() {
+        const notesDiv = document.getElementById("notes");
+        notesDiv.innerHTML = "";
+
+        notes.forEach((note, index) => {
+            notesDiv.innerHTML += `
+                <div class="note" style="background:${note.color}">
+                    <div class="actions">
+                        <button class="btn-small edit-btn" onclick="editNote(${index})">Edit</button>
+                        <button class="btn-small delete-btn" onclick="deleteNote(${index})">X</button>
+                    </div>
+                    ${note.text}
+                    <div class="timestamp">🕒 ${note.timestamp}</div>
+                </div>
+            `;
+        });
+    }
+
+    showNotes();
+</script>
+
+</body>
+</html>
